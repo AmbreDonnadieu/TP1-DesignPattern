@@ -34,6 +34,24 @@ namespace JobSystem
             }
         }
 
+        public IPromise AddJob(IJob job)
+        {
+            var promise = new Promise();
+
+            Action jobAction = () => {
+                try {
+                    job.Execute();
+                    promise.Resolve();
+                } catch (Exception ex) {
+                    promise.Reject(ex);
+                }
+            };
+
+            pendingJobs.Enqueue(jobAction);
+
+            return promise;
+        }
+
         public IPromise<ResultType> AddJob<ResultType>(IJob<ResultType> job)
         {
             var promise = new Promise<ResultType>();
