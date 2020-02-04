@@ -120,7 +120,7 @@ class ServiceCollection: IServiceProvider, IServiceRegistry
 
         if(service == null)
         {
-            // throw exception
+            throw new Exception("No service of type " + serviceType.FullName + " found.");
         }
 
         return service;
