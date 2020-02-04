@@ -7,7 +7,7 @@ namespace JobSystem
     public class JobSystem
     {
         private List<Thread> threads = new List<Thread>();
-        private Queue<Action> pendingJobs = new Queue<Action>();
+        private Queue<Action> pendingJobs = new Queue<Action>(); // Action = fonction asychrone et fait office d'intermédiaire entre le job et la promesse
         private bool stopRequested = false;
 
         //Constructeur qui initialise le nombre de thread du job system en fonction du nombre de processeur dispo sur la machine en cours
