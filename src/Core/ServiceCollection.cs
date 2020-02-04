@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
+
+// C'est le conteneur d'injection de dépendance
+//tu enregistres les types à créer et tu appelles l'injection de dépendance quand tu veux créer un objet
+// On lui donne une liste d'objet à créer avec des indications sur le type de constructeurs d'objet à utiliser
 interface IServiceProvider
 {
     object GetService(Type serviceType);
