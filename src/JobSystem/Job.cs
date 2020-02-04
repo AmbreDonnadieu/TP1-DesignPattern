@@ -2,6 +2,7 @@ using System;
 
 namespace JobSystem
 {
+    //Permet juste d'executer un job
     public interface IJob
     {
         void Execute();
