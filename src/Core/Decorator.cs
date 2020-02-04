@@ -10,15 +10,21 @@ namespace Core
     {
         protected Decorable<ReturnT> Decorable;
 
-        Decorator(Decorable<ReturnT> decorable)
+        public Decorator(Decorable<ReturnT> decorable)
         {
             Decorable = decorable;
         }
+
+        public abstract ReturnT Operation();
     }
 
     public class Compression: Decorator<string>
     {
-        string Operation()
+        public Compression(Decorable<string> decorable): base(decorable)
+        {
+        }
+
+        public override string Operation()
         {
             return "Compressed:" + Decorable.Operation();
         }
@@ -26,7 +32,11 @@ namespace Core
 
     public class Encryption: Decorator<string>
     {
-        string Operation()
+        public Encryption(Decorable<string> decorable): base(decorable)
+        {
+        }
+
+        public override string Operation()
         {
             return "Encrypted:" + Decorable.Operation();
         }
