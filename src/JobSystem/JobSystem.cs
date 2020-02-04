@@ -4,21 +4,53 @@ using System.Threading;
 
 namespace JobSystem
 {
+    public class JobSystemOptions
+    {
+        public class Builder
+        {
+            private JobSystemOptions Options = new JobSystemOptions();
+
+            public Builder()
+            {
+            }
+
+            public JobSystemOptions Build()
+            {
+                return Options;
+            }
+
+            public Builder ThreadCount(int count)
+            {
+                Options.ThreadCount = count;
+                return this;
+            }
+        }
+
+        public JobSystemOptions()
+        {
+        }
+        
+        public int ThreadCount { get; set; } = Environment.ProcessorCount - 1;
+    }
+
     public class JobSystem
     {
         private List<Thread> threads = new List<Thread>();
         private Queue<Action> pendingJobs = new Queue<Action>(); // Action = fonction asychrone et fait office d'intermédiaire entre le job et la promesse
         private bool stopRequested = false;
 
+        readonly JobSystemOptions Options;
+
         //Constructeur qui initialise le nombre de thread du job system en fonction du nombre de processeur dispo sur la machine en cours
-        public JobSystem()
+        public JobSystem(JobSystemOptions options)
         {
-            for(int i = 0; i < Environment.ProcessorCount; i++)
+            Options = options;
+
+            for(int i = 0; i < Options.ThreadCount; i++)
             {
                 threads.Add(new Thread(ThreadWorker));
             }
         }
-
 
         //Fonction qui tourne sur tous les threads pour savoir s'il y a besoin de prendre une nouvelle tâche à la fin de la précédente
         private void ThreadWorker()
@@ -76,6 +108,11 @@ namespace JobSystem
         public void Stop()
         {
             stopRequested = true;
+
+            foreach (var thread in threads)
+            {
+                thread.Join();
+            }
         }
     }
 }

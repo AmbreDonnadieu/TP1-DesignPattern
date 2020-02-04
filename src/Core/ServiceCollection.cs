@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Reflection;
 
 
-// C'est le conteneur d'injection de dépendance
-//tu enregistres les types à créer et tu appelles l'injection de dépendance quand tu veux créer un objet
-// On lui donne une liste d'objet à créer avec des indications sur le type de constructeurs d'objet à utiliser
-interface IServiceProvider
+// C'est le conteneur d'injection de dï¿½pendance
+//tu enregistres les types ï¿½ crï¿½er et tu appelles l'injection de dï¿½pendance quand tu veux crï¿½er un objet
+// On lui donne une liste d'objet ï¿½ crï¿½er avec des indications sur le type de constructeurs d'objet ï¿½ utiliser
+internal interface IServiceProvider
 {
     object GetService(Type serviceType);
 
@@ -15,7 +15,7 @@ interface IServiceProvider
     bool TryGetService(Type serviceType, out object serviceInstance);
 }
 
-static class IServiceProviderExtensions
+internal static class IServiceProviderExtensions
 {
     public static TService GetService<TService>(this IServiceProvider provider) where TService: class
     {
@@ -64,14 +64,14 @@ static class IServiceProviderExtensions
     }
 }
 
-interface IServiceRegistry
+internal interface IServiceRegistry
 {
     void AddService(Type serviceType, Type serviceImplType);
 
     void AddService(Type serviceType, Func<IServiceProvider, object> factory);
 }
 
-static class IServiceRegistryExtensions
+internal static class IServiceRegistryExtensions
 {
     public static void AddService<TService>(this IServiceRegistry serviceRegistry, Func<IServiceProvider, TService> factory) where TService: class
     {
@@ -84,7 +84,7 @@ static class IServiceRegistryExtensions
     }
 }
 
-class ServiceCollection: IServiceProvider, IServiceRegistry
+internal class ServiceCollection: IServiceProvider, IServiceRegistry
 {
     Dictionary<Type, Func<IServiceProvider, object>> RegisteredServices;
     Dictionary<Type, object> InstantiatedServices;
