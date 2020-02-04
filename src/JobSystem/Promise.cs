@@ -3,6 +3,12 @@ using System.Collections.Generic;
 
 namespace JobSystem
 {
+    //on a utilisé le design pattern "Promesse"
+    //ainsi, la méthode qui effectue des modifications des données "promet" de renvoyer un resultat/objet quoiqu'il arrive
+    //cela d'éviter d'avoir une multitude de catch exception qui boucle sur eux-même
+
+
+    //PromiseState correspond à l'etat de la promesse/requète de départ
     public enum PromiseState
     {
         Pending,    
@@ -10,17 +16,28 @@ namespace JobSystem
         Resolved,    
     };
 
-    public interface IPromise
+
+    //cet interface sera appelé à chaque début de tâche 
+    //il permet de protéger l'accès aux données des tâches en cours sur le thread puisque seul l'essentiel est accessible
+    public interface IPromise // la méthode "promet" de renvoyer un objet quoiqu'il arrive
     {
+        //Est appelé quand la promesse est un succès (est composé du callback de fin)
         IPromise Then(Action onResolved);
 
+        //idem que le then mais quand il y a une exception (que la promesse est un echec entre autre)
         IPromise Catch(Action<Exception> onRejected);
 
+        //Appelle le callback qu'il y ait une erreur ou non 
         IPromise Finally(Action onComplete);
 
+        //Pour afficher les exceptions rien n'a été catch
         void Done();
     }
 
+
+    //C'est la classe complète de la promesse avec toutes les méthodes de modifications 
+    //Cette classe hérite de l'interface et implémente réellement les méthodes de l'interface
+    //cette partie est pour les promesses qui ne retournent rien et dont on a juste besoin du suivit de l'execution de la tâche
     public class Promise : IPromise
     {
         private Exception rejectedException;
@@ -31,6 +48,7 @@ namespace JobSystem
 
         private PromiseState state = PromiseState.Pending;
 
+        //Permet de mettre la valeur de l'etat de la tâche en cours 
         public void Resolve()
         {
             if (state != PromiseState.Pending)
@@ -55,6 +73,7 @@ namespace JobSystem
             }
         }
 
+        //Quand l'action a une erreur, ça renvoie une exception
         public void Reject(Exception ex)
         {
             if (state != PromiseState.Pending)
@@ -80,6 +99,7 @@ namespace JobSystem
             }
         }
 
+        //c'est l'appel du callback quand l'action est finie
         public IPromise Then(Action onResolved)
         {
             if(state == PromiseState.Resolved)
@@ -99,6 +119,7 @@ namespace JobSystem
             return this;
         }
 
+        //renvoie une exception s'il y a une erreur dans l'execution de la tâche
         public IPromise Catch(Action<Exception> onRejected)
         {
             if(state == PromiseState.Rejected)
@@ -118,6 +139,7 @@ namespace JobSystem
             return this;
         }
 
+        //Envoie l'etat de la tâche en cours qu'il y ait eu succès ou erreur lors du traitement
         public IPromise Finally(Action onComplete)
         {
             throw new NotImplementedException(); // TODO
@@ -129,6 +151,9 @@ namespace JobSystem
         }
     }
 
+
+
+    //pour retourner les promesses qui retournent une valeur à la fin de l'execution de la tâche
     public interface IPromise<PromisedType>
     {
         IPromise<PromisedType> Then(Action<PromisedType> onResolved);
@@ -151,6 +176,7 @@ namespace JobSystem
         private List<Action<Exception>> rejectedCallbacks = null;
 
         private PromiseState state = PromiseState.Pending;
+
 
         public void Resolve(PromisedType value)
         {
@@ -177,6 +203,7 @@ namespace JobSystem
             }
         }
 
+        //Quand l'action a une erreur, ça renvoie une exception
         public void Reject(Exception ex)
         {
             if (state != PromiseState.Pending)
