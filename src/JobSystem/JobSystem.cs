@@ -10,6 +10,7 @@ namespace JobSystem
         private Queue<Action> pendingJobs = new Queue<Action>();
         private bool stopRequested = false;
 
+        //Constructeur qui initialise le nombre de thread du job system en fonction du nombre de processeur dispo sur la machine en cours
         public JobSystem()
         {
             for(int i = 0; i < Environment.ProcessorCount; i++)
@@ -18,6 +19,8 @@ namespace JobSystem
             }
         }
 
+
+        //Fonction qui tourne sur tous les threads pour savoir s'il y a besoin de prendre une nouvelle tâche à la fin de la précédente
         private void ThreadWorker()
         {
             while(stopRequested == false)
@@ -34,6 +37,7 @@ namespace JobSystem
             }
         }
 
+        // Ajout d'une tâche à la liste des jobs à faire (communs à tous les threads)
         public IPromise AddJob(IJob job)
         {
             var promise = new Promise();
