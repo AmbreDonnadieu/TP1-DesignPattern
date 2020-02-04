@@ -2,6 +2,10 @@
 
 namespace Core
 {
+
+    //Regroupe les interfaces et classes nécessaires pour faire un decorateur
+    //On utilise le décorateur pour chiffrer et compresser les données 
+    //On l'appelle dans le job pour protéger les données à l'execution
     public interface Decorable<ReturnT> {
         ReturnT Operation();
     }
