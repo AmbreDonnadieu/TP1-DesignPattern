@@ -86,8 +86,8 @@ internal static class IServiceRegistryExtensions
 
 internal class ServiceCollection: IServiceProvider, IServiceRegistry
 {
-    Dictionary<Type, Func<IServiceProvider, object>> RegisteredServices;
-    Dictionary<Type, object> InstantiatedServices;
+    private Dictionary<Type, Func<IServiceProvider, object>> RegisteredServices = new Dictionary<Type, Func<IServiceProvider, object>>();
+    private Dictionary<Type, object> InstantiatedServices = new Dictionary<Type, object>();
 
     public ServiceCollection()
     {

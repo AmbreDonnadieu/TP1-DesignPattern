@@ -7,6 +7,7 @@ namespace Application
         static void Main(string[] args)
         {
             ComS2S com = new ComS2S();
+            com.Close();
         }
     }
 }

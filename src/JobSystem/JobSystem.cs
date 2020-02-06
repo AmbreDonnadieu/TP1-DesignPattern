@@ -48,7 +48,9 @@ namespace JobSystem
 
             for(int i = 0; i < Options.ThreadCount; i++)
             {
-                threads.Add(new Thread(ThreadWorker));
+                Thread thread = new Thread(ThreadWorker);
+                threads.Add(thread);
+                thread.Start();
             }
         }
 
