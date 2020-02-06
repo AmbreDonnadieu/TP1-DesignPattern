@@ -1,9 +1,18 @@
 using System;
+using System.Text;
 using System.Threading;
 using JobSystem;
 
 public class ComS2S
 {
+    [Flags]
+    public enum EStreamOptions
+    {
+        None = 0x0,
+        Encrypted = 0x1,
+        Compressed = 0x2,
+    }
+
     public class Options
     {
         public Options()
@@ -13,15 +22,7 @@ public class ComS2S
         
         public JobSystemOptions JobSystemOptions { get; set; }
 
-        [Flags]
-        public enum EStreamOptions
-        {
-            None = 0x0,
-            Encrypted = 0x1,
-            Compressed = 0x2,
-        }
-
-        EStreamOptions StreamOptions = EStreamOptions.None;
+        public EStreamOptions StreamOptions = EStreamOptions.None;
     }
 
     public delegate void OnDataReceivedEvent(byte[] data);
@@ -44,13 +45,28 @@ public class ComS2S
 
     public void SendData(byte[] data)  
     {
-        Services.GetService<JobSystem.JobSystem>().AddJob(new SendDataJob(data))
+        IDataStream dataStream = new BufferDataStream();
+
+        Options opts = Services.GetService<Options>();
+
+        if(opts.StreamOptions.HasFlag(EStreamOptions.Compressed))
+        {
+            dataStream = new Compression(dataStream);
+        }
+        if(opts.StreamOptions.HasFlag(EStreamOptions.Encrypted))
+        {
+            dataStream = new Encryption(dataStream);
+        }
+
+        dataStream.WriteData(data);
+        Console.WriteLine("Local: Data sent: " + Encoding.UTF8.GetString(data));
+        Services.GetService<JobSystem.JobSystem>().AddJob(new SendDataJob(dataStream))
             .Then(TriggerOnDataReceived);
     }
 
-    private void TriggerOnDataReceived(byte[] data)  
+    private void TriggerOnDataReceived(IDataStream stream)  
     {
-        OnDataReceived?.Invoke(data);
+        OnDataReceived?.Invoke(stream.ReadData());
     }
 
     public void Close()  
@@ -59,18 +75,23 @@ public class ComS2S
     }
 }
 
-internal class SendDataJob: IJob<byte[]>
+internal class SendDataJob: IJob<IDataStream>
 {
-    private byte[] DataToSend;
+    private IDataStream DataToSend;
 
-    public SendDataJob(byte[] dataToSend)
+    public SendDataJob(IDataStream dataToSend)
     {
         DataToSend = dataToSend;
     }
 
-    public byte[] Execute()
+    public IDataStream Execute()
     {
+        Console.WriteLine("Remote: Data received: " + Encoding.UTF8.GetString(DataToSend.ReadData()));
         Thread.Sleep(new Random().Next(300, 800));
-        return new byte[10];
+        byte[] resp = Encoding.UTF8.GetBytes("a");
+        Console.WriteLine("Remote: Data sent: " + Encoding.UTF8.GetString(resp));
+        IDataStream stream = new BufferDataStream();
+        stream.WriteData(resp);
+        return stream;
     }
 }

@@ -38,6 +38,7 @@ namespace JobSystem
         private List<Thread> threads = new List<Thread>();
         private Queue<Action> pendingJobs = new Queue<Action>(); // Action = fonction asychrone et fait office d'intermédiaire entre le job et la promesse
         private bool stopRequested = false;
+        private Mutex mutex = new Mutex();  
 
         readonly JobSystemOptions Options;
 
@@ -60,12 +61,15 @@ namespace JobSystem
             while(stopRequested == false)
             {
                 Action job;
+                mutex.WaitOne();
                 if(pendingJobs.TryDequeue(out job)) // thread safe way
                 {
+                    mutex.ReleaseMutex();
                     job(); // execute job
                 }
                 else
                 {
+                    mutex.ReleaseMutex();
                     Thread.Sleep(1000);
                 }
             }
