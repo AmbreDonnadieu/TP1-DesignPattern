@@ -6,7 +6,7 @@ namespace Application
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            ComS2S com = new ComS2S();
         }
     }
 }
